@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "dknw-tools"
+version = "0.1.0"
+description = "DK Network Tools"
+authors = ["Anonymous"]
+license = "UNLICENSED"
+readme = "README.md"
+packages = [
+    {include = "denmoku"},
+    {include = "sftp"}
+]
+
+[tool.poetry.scripts]
+dknw-tools = "dknw_tools_cli.cli:main"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+bitstring = "^4.3.0"
+fire = "^0.7.0"
+tqdm = "^4.67.1"
+fastcrc = "^0.3.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
