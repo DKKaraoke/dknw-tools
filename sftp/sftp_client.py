@@ -238,8 +238,10 @@ class SftpClient:
                 logger.error("Send/receive error: %s", str(e))
                 return False, None
 
-    async def download_file(self, dir: int, file: int, dest_path: str) -> int:
-        logger.info("Starting file download - Directory: %d, File: %d", dir, file)
+    async def exists_file(self, dir: int, file: int) -> int:
+        logger.debug(
+            "Starting file existence check - Directory: %d, File: %d", dir, file
+        )
         # F_START
         _, response = await self.send_and_receive(
             GenericApdu(
@@ -260,15 +262,63 @@ class SftpClient:
             )
         )
         if not isinstance(response, GenericApdu) or response.type != ApduType.F_READY:
-            logger.error("F_READY response not received")
-            raise ValueError("F_READY not responded.")
+            logger.debug("File not exists: Directory: %d, File: %d", dir, file)
+            return False
+
+        while True:
+            _, response = await self.receive()
+            if not isinstance(response, GenericApdu) and not isinstance(
+                response, FDataApdu
+            ):
+                logger.error("Invalid SFTP message received")
+                raise ValueError("Invalid SFTP message received.")
+
+            if isinstance(response, GenericApdu):
+                if response.type == ApduType.F_FINAL:
+                    # Finish
+                    break
+
+                logger.error("Unexpected APDU received: %s", response.type)
+                raise ValueError("Unexpected APDU received.")
+
+        # F_END
+        logger.debug("Sending F_END")
+        await self.send(GenericApdu(ApduType.F_END, []))
+
+        logger.debug("File exists: Directory: %d, File: %d", dir, file)
+        return True
+
+    async def download_file(self, dir: int, file: int, dest_path: str) -> int:
+        logger.debug("Starting file download - Directory: %d, File: %d", dir, file)
+        # F_START
+        _, response = await self.send_and_receive(
+            GenericApdu(
+                ApduType.F_START,
+                [
+                    ApduItem(
+                        ApduItemType.FILE_OPERATION,
+                        FileOperationType.READ.value.to_bytes(
+                            length=2, byteorder="big"
+                        ),
+                    ),
+                    ApduItem(
+                        ApduItemType.FILE_NUMBER,
+                        dir.to_bytes(length=2, byteorder="big")
+                        + file.to_bytes(length=4, byteorder="big"),
+                    ),
+                ],
+            )
+        )
+        if not isinstance(response, GenericApdu) or response.type != ApduType.F_READY:
+            logger.debug("F_READY response not received")
+            return None
 
         expected_size_item = response.get_item(ApduItemType.EXPECT_FILE_SIZE)
         if expected_size_item is None:
             expected_size = None
         else:
             expected_size = int.from_bytes(expected_size_item, byteorder="big")
-            logger.info("Expected file size: %d bytes", expected_size)
+            logger.debug("Expected file size: %d bytes", expected_size)
 
         downloaded_size = 0
         with open(dest_path, "wb") as dest_file:
@@ -309,14 +359,14 @@ class SftpClient:
         logger.debug("Sending F_END")
         await self.send(GenericApdu(ApduType.F_END, []))
 
-        logger.info(
+        logger.debug(
             "File download completed: %s (%d bytes)", dest_path, downloaded_size
         )
         return downloaded_size
 
     async def upload_file(self, src_path: str, dir: int, file: int) -> int:
         file_size = path.getsize(src_path)
-        logger.info(
+        logger.debug(
             "Starting file upload - Path: %s, Size: %d bytes", src_path, file_size
         )
 
@@ -388,7 +438,7 @@ class SftpClient:
             logger.error("F_END response not received")
             raise ValueError("F_END not responded.")
 
-        logger.info("File upload completed: %d bytes", file_size)
+        logger.debug("File upload completed: %d bytes", file_size)
         return file_size
 
     async def __aenter__(self) -> Self:
