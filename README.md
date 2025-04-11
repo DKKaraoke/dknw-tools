@@ -45,6 +45,45 @@ Example:
 dknw-tools scan_terminals 192.168.1.0/24 --timeout=2.0 --workers=100
 ```
 
+### search-dirs
+
+Search directories in a DAM terminal.
+
+```
+$ dknw-tools search-dirs --help
+NAME
+    dknw-tools search-dirs - Search directories in a DAM terminal.
+
+SYNOPSIS
+    dknw-tools search-dirs HOST PORT <flags>
+
+DESCRIPTION
+    Search directories in a DAM terminal.
+
+POSITIONAL ARGUMENTS
+    HOST
+        Type: str
+        DAM terminal address
+    PORT
+        Type: int
+        DAM terminal SFTP port
+
+FLAGS
+    -d, --dest=DEST
+        Type: Optional[str | None]
+        Default: None
+        Destination file path. If provided, found files will be downloaded.
+
+NOTES
+    You can also use flags syntax for POSITIONAL ARGUMENTS
+```
+
+Example:
+
+```bash
+dknw-tools search_dirs 192.168.1.100 22 ./downloads/
+```
+
 ### download-file
 
 Download a file from a DAM terminal
