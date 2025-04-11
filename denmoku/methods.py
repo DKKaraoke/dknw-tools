@@ -191,7 +191,7 @@ class NetworkScanner:
             show_progress: Whether to show progress bar
         """
         # Prepare request message
-        request_buffer = GetTerminalTypeRequest().to_bytes()
+        request_buffer = GetTerminalTypeRequest("SPDENMOK").to_bytes()
 
         # Get valid addresses
         try:
