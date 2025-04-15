@@ -51,11 +51,12 @@ Search directories in a DAM terminal.
 
 ```
 $ dknw-tools search-dirs --help
+
 NAME
     dknw-tools search-dirs - Search directories in a DAM terminal.
 
 SYNOPSIS
-    dknw-tools search-dirs HOST PORT <flags>
+    dknw-tools - search-dirs HOST PORT <flags>
 
 DESCRIPTION
     Search directories in a DAM terminal.
@@ -66,10 +67,22 @@ POSITIONAL ARGUMENTS
         DAM terminal address
     PORT
         Type: int
-        DAM terminal SFTP port
+        DAM terminal port (main port for SFTP, data port for DS2FTP if data_port not specified)
 
 FLAGS
-    -d, --dest=DEST
+    -p, --protocol=PROTOCOL
+        Type: str
+        Default: 'sftp'
+        Protocol type ("sftp" or "ds2ftp"). Defaults to "sftp".
+    -c, --ctrl_port=CTRL_PORT
+        Type: Optional[Optional]
+        Default: None
+        Control port for DS2FTP (optional, default: port+1)
+    --data_port=DATA_PORT
+        Type: Optional[Optional]
+        Default: None
+        Data port for DS2FTP (optional, default: port)
+    --dest=DEST
         Type: Optional[str | None]
         Default: None
         Destination file path. If provided, found files will be downloaded.
@@ -81,7 +94,7 @@ NOTES
 Example:
 
 ```bash
-dknw-tools search_dirs 192.168.1.100 22 ./downloads/
+dknw-tools - search-dirs 192.168.1.100 0x59C0 --protocol=DS2FTP --dest=./downloads/
 ```
 
 ### download-file
@@ -89,27 +102,47 @@ dknw-tools search_dirs 192.168.1.100 22 ./downloads/
 Download a file from a DAM terminal
 
 ```
-$ dknw-tools download_file --help
+$ dknw-tools download-file --help
+
 NAME
-    dknw-tools download_file - Download a file from a DAM terminal.
+    dknw-tools download-file - Download a file from a DAM terminal.
 
 SYNOPSIS
-    dknw-tools download_file HOST PORT DIR FILE DEST
+    dknw-tools - download-file HOST PORT DIR FILE DEST <flags>
 
 DESCRIPTION
     Download a file from a DAM terminal.
 
 POSITIONAL ARGUMENTS
     HOST
+        Type: str
         DAM terminal address
     PORT
-        DAM terminal SFTP port
+        Type: int
+        DAM terminal port (main port for SFTP, data port for DS2FTP if data_port not specified)
     DIR
+        Type: int
         Directory number
     FILE
+        Type: int
         File number
     DEST
+        Type: str
         Destination file path
+
+FLAGS
+    -p, --protocol=PROTOCOL
+        Type: str
+        Default: 'sftp'
+        Protocol type ("sftp" or "ds2ftp"). Defaults to "sftp".
+    -c, --ctrl_port=CTRL_PORT
+        Type: Optional[Optional]
+        Default: None
+        Control port for DS2FTP (optional, default: port+1)
+    -d, --data_port=DATA_PORT
+        Type: Optional[Optional]
+        Default: None
+        Data port for DS2FTP (optional, default: port)
 
 NOTES
     You can also use flags syntax for POSITIONAL ARGUMENTS
@@ -118,7 +151,7 @@ NOTES
 Example:
 
 ```bash
-dknw-tools download_file 192.168.1.100 22 1006 123456 ./1006.123456
+dknw-tools download_file 192.168.1.100 0x4200 1006 123456 ./1006.123456
 ```
 
 ### upload-file
@@ -126,27 +159,48 @@ dknw-tools download_file 192.168.1.100 22 1006 123456 ./1006.123456
 Upload a file to a DAM terminal
 
 ```
-$ dknw-tools upload_file --help
+$ dknw-tools upload-file --help
+INFO: Showing help with the command 'dknw-tools - upload-file -- --help'.
+
 NAME
-    dknw-tools upload_file - Upload a file to a DAM terminal.
+    dknw-tools upload-file - Upload a file to a DAM terminal.
 
 SYNOPSIS
-    dknw-tools upload_file HOST PORT SRC DIR FILE
+    dknw-tools - upload-file HOST PORT SRC DIR FILE <flags>
 
 DESCRIPTION
     Upload a file to a DAM terminal.
 
 POSITIONAL ARGUMENTS
     HOST
+        Type: str
         DAM terminal address
     PORT
-        DAM terminal SFTP port
+        Type: int
+        DAM terminal port (main port for SFTP, data port for DS2FTP if data_port not specified)
     SRC
+        Type: str
         Source file path
-    DIR-
+    DIR
+        Type: int
         Directory number
     FILE
+        Type: int
         File number
+
+FLAGS
+    -p, --protocol=PROTOCOL
+        Type: str
+        Default: 'sftp'
+        Protocol type ("sftp" or "ds2ftp"). Defaults to "sftp".
+    -c, --ctrl_port=CTRL_PORT
+        Type: Optional[Optional]
+        Default: None
+        Control port for DS2FTP (optional, default: port+1)
+    -d, --data_port=DATA_PORT
+        Type: Optional[Optional]
+        Default: None
+        Data port for DS2FTP (optional, default: port)
 
 NOTES
     You can also use flags syntax for POSITIONAL ARGUMENTS
@@ -155,7 +209,7 @@ NOTES
 Example:
 
 ```bash
-dknw-tools upload_file 192.168.1.100 22 ./1006.123456 1006 123456
+dknw-tools upload_file 192.168.1.100 0x4200 ./1006.123456 1006 123456
 ```
 
 ## List of verified DAM Karaoke terminals
